@@ -4,8 +4,6 @@
 # In[3]:
 
 
-get_ipython().system('pip install -r requirements.txt')
-
 
 # In[ ]:
 
