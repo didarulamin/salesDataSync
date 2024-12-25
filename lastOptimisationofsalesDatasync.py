@@ -1,13 +1,8 @@
-#!/usr/bin/env python
-# coding: utf-8
+# %%
+!pip install -r requirements.txt
 
-# In[3]:
-
-
-
-# In[ ]:
-
-
+# %%
+!pip install -r requirements.txt
 import requests
 from pymongo import MongoClient, UpdateOne
 import time
@@ -54,9 +49,9 @@ zid_headers = {
 # Start dates
 start_date_utc3 = datetime(2024, 11, 29, 20, 0, 0, tzinfo=timezone.utc)
 start_date_utc3_for_others = datetime(2024, 12, 5, 11, 0, 0, tzinfo=timezone.utc)
-
+start_date_utc3_for_new_two = datetime(2024, 12, 25, 11, 0, 0, tzinfo=timezone.utc)
 # Target Product IDs
-TARGET_PRODUCT_IDS = ["1056856", "1058711", "1058627", "1058530"]
+TARGET_PRODUCT_IDS = ["1056856", "1058711", "1058627", "1058530","1065759", "1058162"]
 
 # Retry settings
 MAX_RETRIES = 3
@@ -95,7 +90,13 @@ def get_filtered_results():
                                             "$cond": {
                                                 "if": {"$in": ["$id", ["1058627", "1058530"]]},
                                                 "then": start_date_utc3_for_others,
-                                                "else": start_date_utc3
+                                                "else": {
+                                                    "$cond": {
+                                                        "if": {"$in": ["$id", ["1065759", "1058162"]]},
+                                                        "then": start_date_utc3_for_new_two,
+                                                        "else": start_date_utc3
+                                                    }
+                                                }
                                             }
                                         }
                                     ]
@@ -115,7 +116,6 @@ def get_filtered_results():
         },
     ]
     return list(collection.aggregate(pipeline))
-
 
 # Function to fetch currency code from the APIs
 
@@ -312,4 +312,6 @@ if __name__ == "__main__":
     while True:
         schedule.run_pending()
         time.sleep(1)
+
+
 
