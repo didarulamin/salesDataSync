@@ -1,8 +1,4 @@
-# %%
-!pip install -r requirements.txt
 
-# %%
-!pip install -r requirements.txt
 import requests
 from pymongo import MongoClient, UpdateOne
 import time
