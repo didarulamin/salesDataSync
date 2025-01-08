@@ -65,7 +65,7 @@ def get_filtered_results():
         },
         {
             "$project": {
-                "_id": 0,  # Exclude _id field if not required
+                "_id": 1,
                 "id": 1,
                 "name": 1,
                 "barcode": 1,
@@ -83,7 +83,7 @@ def get_filtered_results():
                                                 "timezone": "Asia/Riyadh"
                                             }
                                         },
-                                        {
+                                       {
                                             "$cond": {
                                                 "if": {"$in": ["$id", ["1058627", "1058530"]]},
                                                 "then": start_date_utc3_for_others,
@@ -108,7 +108,7 @@ def get_filtered_results():
                                 {
                                     "$or": [
                                         {"$eq": ["$$transaction.currency_updated", False]},
-                                        {"$not": "$$transaction.currency_updated"}
+                                        {"$not": {"$ifNull": ["$$transaction.currency_updated", False]}}
                                     ]
                                 }
                             ]
@@ -116,9 +116,8 @@ def get_filtered_results():
                     }
                 }
             }
-        }
+        },
     ]
-    
     return list(collection.aggregate(pipeline))
 
 # Function to fetch currency code from the APIs
@@ -316,6 +315,3 @@ if __name__ == "__main__":
     while True:
         schedule.run_pending()
         time.sleep(1)
-
-
-
