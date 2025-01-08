@@ -46,8 +46,9 @@ zid_headers = {
 start_date_utc3 = datetime(2024, 11, 29, 20, 0, 0, tzinfo=timezone.utc)
 start_date_utc3_for_others = datetime(2024, 12, 5, 11, 0, 0, tzinfo=timezone.utc)
 start_date_utc3_for_new_two = datetime(2024, 12, 25, 11, 0, 0, tzinfo=timezone.utc)
+start_date_utc3_for_new_one= datetime(2025, 1, 7, 20, 0, 0, tzinfo=timezone.utc)
 # Target Product IDs
-TARGET_PRODUCT_IDS = ["1056856", "1058711", "1058627", "1058530","1065759", "1058162"]
+TARGET_PRODUCT_IDS = ["1056856", "1058711", "1058627", "1058530","1065759", "1058162","1056857"]
 
 # Retry settings
 MAX_RETRIES = 3
@@ -64,7 +65,7 @@ def get_filtered_results():
         },
         {
             "$project": {
-                "_id": 1,
+                "_id": 0,  # Exclude _id field if not required
                 "id": 1,
                 "name": 1,
                 "barcode": 1,
@@ -90,7 +91,13 @@ def get_filtered_results():
                                                     "$cond": {
                                                         "if": {"$in": ["$id", ["1065759", "1058162"]]},
                                                         "then": start_date_utc3_for_new_two,
-                                                        "else": start_date_utc3
+                                                        "else": {
+                                                            "$cond": {
+                                                                "if": {"$eq": ["$id", "1056857"]},
+                                                                "then": start_date_utc3_for_new_one,
+                                                                "else": start_date_utc3
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
@@ -101,7 +108,7 @@ def get_filtered_results():
                                 {
                                     "$or": [
                                         {"$eq": ["$$transaction.currency_updated", False]},
-                                        {"$not": {"$ifNull": ["$$transaction.currency_updated", False]}}
+                                        {"$not": "$$transaction.currency_updated"}
                                     ]
                                 }
                             ]
@@ -109,8 +116,9 @@ def get_filtered_results():
                     }
                 }
             }
-        },
+        }
     ]
+    
     return list(collection.aggregate(pipeline))
 
 # Function to fetch currency code from the APIs
